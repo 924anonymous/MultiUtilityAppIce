@@ -1,4 +1,3 @@
-FROM amazon/aws-cli:latest
 FROM python:3.9-slim
 
 WORKDIR /root/
@@ -6,6 +5,7 @@ WORKDIR /root/
 RUN mkdir -p /root/.aws
 
 COPY ./config /root/.aws/
+
 COPY ./credentials /root/.aws/
 
 WORKDIR /app
@@ -13,6 +13,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
+    unzip \
+    groff \
+    less \
     software-properties-common \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -20,6 +23,12 @@ RUN apt-get update && apt-get install -y \
 RUN python -m pip install --upgrade pip
 
 RUN git clone https://github.com/924anonymous/MultiUtilityAppIce.git .
+
+RUN	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+RUN	unzip awscliv2.zip && ./aws/install
+
+RUN rm -rf awscliv2.zip
 
 RUN pip install -r requirements.txt
 
