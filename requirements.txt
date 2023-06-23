@@ -6,4 +6,3 @@ plotly==5.9.0
 psycopg2_binary==2.9.6
 streamlit==1.22.0
 streamlit_option_menu==0.3.2
-awscli==1.27.13
