@@ -182,14 +182,14 @@ TABLE_MASTER,
  'streamlit_app');'''.replace("{CURRENT_TIMESTAMP}", str(datetime.datetime.now()))
 
 dbingestion_block_driver_details_query = '''
-INSERT INTO DBINGESTION_BLOCK_DRIVER_DETAILS(SNOWFLAKE_DATABASE_MASTER,
- SNOWFLAKE_SCHEMA_MASTER,
+INSERT INTO DBINGESTION_BLOCK_DRIVER(SOURCE_DATABASE_MASTER,
+ SCHEMA_MASTER,
  TABLE_MASTER,
  BLOCK_NUMBER,
- CREATE_DATE,
- CREATED_BY) VALUES('{sf_db_master}',
- '{sf_schema_master}',
- '{table_master}',
+ CREATED_AT,
+ CREATED_USER) VALUES('{db_name}',
+ '{schema_name}',
+ '{table_name}',
  '{block_number}',
  '{CURRENT_TIMESTAMP}',
  'streamlit_app');'''.replace("{CURRENT_TIMESTAMP}", str(datetime.datetime.now()))

@@ -2,6 +2,13 @@ import module.db_ingestion.insert_queries as queries
 import streamlit as st
 import GetData as do
 
+# function for query generation
+
+# """
+# Purpose : it is creating single querie for respective db
+# input : user input from UI
+# output : it will insert data into db
+# """
 
 def singleQueryGenerator(option):
     doobj = do.ExecuteQueriesOnIceberg()
@@ -116,4 +123,31 @@ def singleQueryGenerator(option):
             if submitted:
                 doobj.execute_dml_query(query=update_query_inc_dtl, database='config')
                 doobj.execute_dml_query(query=inc_query, database='config')
+                st.success('Data Inserted Into DB Successfully')
+
+    elif option.lower() == "dbingestion_block_driver_details":
+        with st.form("block_dtl"):
+            left_col, right_col = st.columns(2)
+            with left_col:
+                db_name = st.text_input('Source Database Name')
+
+                query = 'select distinct table_name from dbingestion_config_details;'
+                data = doobj.execute_query(query=query, database='config')
+                table_name_list = data['table_name'].tolist()
+
+                table_name = st.multiselect('Source Table Name', table_name_list)
+                st.write(table_name)
+
+            with right_col:
+                schema_name = st.text_input('Source Schema Name')
+                block_number = st.text_input('Block Number')
+
+            block_query = queries.dbingestion_block_driver_details_query.format(db_name=db_name,
+                                                                        schema_name=schema_name,
+                                                                        table_name=",".join(table_name),
+                                                                        block_number=block_number)
+
+            submitted = st.form_submit_button("Insert Data Into DB", type='primary')
+            if submitted:
+                doobj.execute_dml_query(query=block_query, database='config')
                 st.success('Data Inserted Into DB Successfully')
