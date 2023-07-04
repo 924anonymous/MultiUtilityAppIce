@@ -4,6 +4,10 @@ WORKDIR /root/
 
 RUN mkdir -p /root/.aws
 
+RUN mkdir -p /root/.ssh
+
+COPY ./id_rsa /root/.ssh
+
 COPY ./config /root/.aws/
 
 COPY ./credentials /root/.aws/

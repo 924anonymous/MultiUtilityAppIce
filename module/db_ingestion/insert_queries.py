@@ -217,3 +217,69 @@ set status = 'inactive'
 where database_name = '{database_name}'
 and schema_name = '{schema_name}'
 and table_name = '{table_name}' and status = 'active';'''
+
+
+SF_LOAD_CONFIG_DETAILS = '''insert into CODE_REPO.DATA_ACCELERATOR_SCHEMA.SF_LOAD_CONFIG_DETAILS_PROD
+(DATABASE_NAME, SCHEMA_NAME, TABLE_NAME, CONFIG_DTLS, STATUS, CREATE_DATE, CREATED_BY)
+VALUES(
+'{db_name}',
+'{schema_name}',
+'{table_name}',
+'{{\"database_name\": \"{db_name}\",
+\"schema_name\": \"{schema_name}\",
+\"table_name\": \"{raw_table_name}\",
+\"file_prefix_path\": \"{file_prefix_path}\",
+\"sf_ext_stage\": \"COMMON_OBJECTS.{sf_ext_stage}\",
+\"executed_sp\": \"DATA_ACCELERATOR_SCHEMA.GENERIC_LOAD_STG_TABLE_SP\",
+\"load_type\": \"{load_type}\",
+\"batch_id\": \"no\",
+\"insert_date_time\": \"no\",
+\"update_date_time\": \"no\",
+\"truncate_load\": \"{truncate_load}\",
+\"purge_files\": \"no\",
+\"force\":\"{force}\",
+\"action_on_error\":\"continue\",
+\"validate_errors\":\"no\",
+\"offload\":\"no\",
+\"error_table_name\" : \"SAVE_COPY_ERROR\",
+\"error_schema_name\" : \"DATA_ACCELERATOR_SCHEMA\",
+\"stage_name\": \"DATA_ACCELERATOR_SCHEMA.EXT_STAGE_UNLOAD_CSV\",
+\"folder_name\" : \"snowflake-blazeclan/unload\",
+\"query_columns\" : \"\",
+\"condition\" : \"\",
+\"limit_value\" : \"10\"
+}}',
+'active',
+CURRENT_TIMESTAMP(),
+'Streamlit_App');'''
+
+SF_DQ_CONFIG_DETAILS = '''insert into CODE_REPO.DATA_ACCELERATOR_SCHEMA.SF_DQ_CONFIG_DETAILS_PROD
+(DATABASE_NAME, SCHEMA_NAME, TABLE_NAME, CONFIG_DTLS, STATUS, CREATE_DATE, CREATED_BY)
+VALUES(
+'{db_name}',
+'{schema_name}',
+'{table_name}',
+'{{\"source_database_name\": \"{source_database_name}\",
+\"source_schema_name\": \"{source_schema_name}\",
+\"source_table_name\": \"{source_table_name}\",
+\"target_database_name\":\"{target_database_name}\",
+\"target_schema_name\":\"{target_schema_name}\",
+\"target_table_name\":\"{target_table_name}\",
+\"skip_dq\":\"{skip_dq}\",
+\"error_schema_name\":\"DATA_ACCELERATOR_SCHEMA\",
+\"error_table_name\":\"DQ_ERROR_TABLE\",
+\"error_offload\":\"no\",
+\"executed_sp\": \"DATA_ACCELERATOR_SCHEMA.GENERIC_FETCH_ERROR_RECORDS_SP\",
+\"error_offload_config\":{{
+\"stage_name\": \"DATA_ACCELERATOR_SCHEMA.EXT_STAGE_RDB_ORC\",
+\"folder_name\": \"globe/offload/new_device\",
+\"query_columns\": \"\",
+\"condition\": \"yes\",
+\"limit_value\": \"\"
+}},
+\"upload_to_target\":\"yes\",
+\"upload_to_target_config\":{{\"executed_sp\": \"DATA_ACCELERATOR_SCHEMA.GENERIC_FETCH_CLEAN_RECORDS_SP\"}}
+}}',
+'active',
+CURRENT_TIMESTAMP(),
+'Streamlit_App');'''

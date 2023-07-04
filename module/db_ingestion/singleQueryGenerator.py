@@ -1,6 +1,8 @@
 import module.db_ingestion.insert_queries as queries
 import streamlit as st
 import GetData as do
+import SnowflakeDbConnAndOperations as snowdb
+
 
 # function for query generation
 
@@ -12,6 +14,7 @@ import GetData as do
 
 def singleQueryGenerator(option):
     doobj = do.ExecuteQueriesOnIceberg()
+    snowdbobj = snowdb.ExecuteQueriesOnSnowflake(**st.secrets["snowflake"])
     if option.lower() == 'db_ingestion_config_details':
         with st.form('single_table_form'):
 
@@ -143,11 +146,82 @@ def singleQueryGenerator(option):
                 block_number = st.text_input('Block Number')
 
             block_query = queries.dbingestion_block_driver_details_query.format(db_name=db_name,
-                                                                        schema_name=schema_name,
-                                                                        table_name=",".join(table_name),
-                                                                        block_number=block_number)
+                                                                                schema_name=schema_name,
+                                                                                table_name=",".join(table_name),
+                                                                                block_number=block_number)
 
             submitted = st.form_submit_button("Insert Data Into DB", type='primary')
             if submitted:
                 doobj.execute_dml_query(query=block_query, database='config')
                 st.success('Data Inserted Into DB Successfully')
+
+    elif option.lower() == "sf_load_config_details":
+        with st.form('sf_load_config_dtls'):
+            left_col, right_col = st.columns(2)
+            with left_col:
+                db_name = st.text_input('Database Name')
+                schema_name = st.text_input('Schema Name')
+                table_name = st.text_input('Table Name')
+                raw_table_name = st.text_input('Raw Table Name')
+                force = st.selectbox('Force Load', ('FALSE', 'TRUE'))
+
+            with right_col:
+                file_prefix_path = st.text_input('File Prefix Path')
+                sf_ext_stage = st.text_input('SF External Stage')
+                load_type = st.selectbox('Load Type', ('as_is', 'custom'))
+                truncate_load = st.selectbox('Truncate Load', ('yes', 'no'))
+
+            load_config_query = queries.SF_LOAD_CONFIG_DETAILS.format(
+                db_name=db_name,
+                schema_name=schema_name,
+                table_name=table_name,
+                raw_table_name=raw_table_name,
+                file_prefix_path=file_prefix_path,
+                sf_ext_stage=sf_ext_stage,
+                load_type=load_type,
+                truncate_load=truncate_load,
+                force=force
+            )
+            submitted = st.form_submit_button("Insert Data Into DB", type='primary')
+            if submitted:
+                try:
+                    snowdbobj.execute_dml_query(load_config_query)
+                    st.success('Data Inserted Into DB Successfully')
+                except Exception as e:
+                    st.error(e)
+
+    elif option.lower() == "sf_dq_config_details":
+        with st.form('sf_dq_config_dtls'):
+            left_col, right_col = st.columns(2)
+            with left_col:
+                db_name = st.text_input('Database Name')
+                schema_name = st.text_input('Schema Name')
+                table_name = st.text_input('Table Name')
+                source_database_name = st.text_input('Source Database Name')
+                source_schema_name = st.text_input('Source Schema Name')
+            with right_col:
+                source_table_name = st.text_input('Source Table Name')
+                target_database_name = st.text_input('Target Database Name')
+                target_schema_name = st.text_input('Target Schema Name')
+                target_table_name = st.text_input('Target Table Name')
+                skip_dq = st.selectbox('Skip DQ', ('yes', 'no'))
+
+            dq_config_query = queries.SF_DQ_CONFIG_DETAILS.format(
+                db_name=db_name,
+                schema_name=schema_name,
+                table_name=table_name,
+                source_database_name=source_database_name,
+                source_schema_name=source_schema_name,
+                source_table_name=source_table_name,
+                target_database_name=target_database_name,
+                target_schema_name=target_schema_name,
+                target_table_name=target_table_name,
+                skip_dq=skip_dq
+            )
+            submitted = st.form_submit_button("Insert Data Into DB", type='primary')
+            if submitted:
+                try:
+                    snowdbobj.execute_dml_query(dq_config_query)
+                    st.success('Data Inserted Into DB Successfully')
+                except Exception as e:
+                    st.error(e)
